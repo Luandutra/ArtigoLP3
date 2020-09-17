@@ -1,0 +1,207 @@
+### Configuração do site ####
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@ViewBag.Title - Contoso University</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="navbar-inner">
+            <div class="container">
+                <button type="button" class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("Contoso University", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                <div class="nav-collapse collapse">
+                    <ul class="nav">
+                        <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                        <li>@Html.ActionLink("About", "About", "Home")</li>
+                        <li>@Html.ActionLink("Students", "Index", "Student")</li>
+                        <li>@Html.ActionLink("Courses", "Index", "Course")</li>
+                        <li>@Html.ActionLink("Instructors", "Index", "Instructor")</li>
+                        <li>@Html.ActionLink("Departments", "Index", "Department")</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year - Contoso University</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>
+
+@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="jumbotron">
+    <h1>Contoso University</h1>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <h2>Welcome to Contoso University</h2>
+        <p>Contoso University is a sample application that
+        demonstrates how to use Entity Framework 6 in an 
+        ASP.NET MVC 5 web application.</p>
+    </div>
+    <div class="col-md-4">
+        <h2>Build it from scratch</h2>
+        <p>You can build the application by following the steps in the tutorial series on the ASP.NET site.</p>
+        <p><a class="btn btn-default" href="http://www.asp.net/mvc/tutorials/getting-started-with-ef-using-mvc/">See the tutorial &raquo;</a></p>
+    </div>
+    <div class="col-md-4">
+        <h2>Download it</h2>
+        <p>You can download the completed project.</p>
+        <p><a class="btn btn-default" href="https://webpifeed.blob.core.windows.net/webpifeed/Partners/ASP.NET%20MVC%20Application%20Using%20Entity%20Framework%20Code%20First.zip">Download &raquo;</a></p>
+    </div>
+</div>
+
+
+
+########## Contexto de banco de dados################
+
+using ContosoUniversity.Models;
+using System.Data.Entity;
+using System.Data.Entity.ModelConfiguration.Conventions;
+
+namespace ContosoUniversity.DAL
+{
+    public class SchoolContext : DbContext
+    {
+    
+        public SchoolContext() : base("SchoolContext")
+        {
+        }
+        
+        public DbSet<Student> Students { get; set; }
+        public DbSet<Enrollment> Enrollments { get; set; }
+        public DbSet<Course> Courses { get; set; }
+
+        protected override void OnModelCreating(DbModelBuilder modelBuilder)
+        {
+            modelBuilder.Conventions.Remove<PluralizingTableNameConvention>();
+        }
+    }
+}
+
+
+###### especificação de conexão###########
+
+
+public SchoolContext() : base("SchoolContext")
+{
+}
+
+#### Inicialização do banco de dados ################
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+using System.Data.Entity;
+using ContosoUniversity.Models;
+
+namespace ContosoUniversity.DAL
+{
+    public class SchoolInitializer : System.Data.Entity. DropCreateDatabaseIfModelChanges<SchoolContext>
+    {
+        protected override void Seed(SchoolContext context)
+        {
+            var students = new List<Student>
+            {
+            new Student{FirstMidName="Carson",LastName="Alexander",EnrollmentDate=DateTime.Parse("2005-09-01")},
+            new Student{FirstMidName="Meredith",LastName="Alonso",EnrollmentDate=DateTime.Parse("2002-09-01")},
+            new Student{FirstMidName="Arturo",LastName="Anand",EnrollmentDate=DateTime.Parse("2003-09-01")},
+            new Student{FirstMidName="Gytis",LastName="Barzdukas",EnrollmentDate=DateTime.Parse("2002-09-01")},
+            new Student{FirstMidName="Yan",LastName="Li",EnrollmentDate=DateTime.Parse("2002-09-01")},
+            new Student{FirstMidName="Peggy",LastName="Justice",EnrollmentDate=DateTime.Parse("2001-09-01")},
+            new Student{FirstMidName="Laura",LastName="Norman",EnrollmentDate=DateTime.Parse("2003-09-01")},
+            new Student{FirstMidName="Nino",LastName="Olivetto",EnrollmentDate=DateTime.Parse("2005-09-01")}
+            };
+
+            students.ForEach(s => context.Students.Add(s));
+            context.SaveChanges();
+            var courses = new List<Course>
+            {
+            new Course{CourseID=1050,Title="Chemistry",Credits=3,},
+            new Course{CourseID=4022,Title="Microeconomics",Credits=3,},
+            new Course{CourseID=4041,Title="Macroeconomics",Credits=3,},
+            new Course{CourseID=1045,Title="Calculus",Credits=4,},
+            new Course{CourseID=3141,Title="Trigonometry",Credits=4,},
+            new Course{CourseID=2021,Title="Composition",Credits=3,},
+            new Course{CourseID=2042,Title="Literature",Credits=4,}
+            };
+            courses.ForEach(s => context.Courses.Add(s));
+            context.SaveChanges();
+            var enrollments = new List<Enrollment>
+            {
+            new Enrollment{StudentID=1,CourseID=1050,Grade=Grade.A},
+            new Enrollment{StudentID=1,CourseID=4022,Grade=Grade.C},
+            new Enrollment{StudentID=1,CourseID=4041,Grade=Grade.B},
+            new Enrollment{StudentID=2,CourseID=1045,Grade=Grade.B},
+            new Enrollment{StudentID=2,CourseID=3141,Grade=Grade.F},
+            new Enrollment{StudentID=2,CourseID=2021,Grade=Grade.F},
+            new Enrollment{StudentID=3,CourseID=1050},
+            new Enrollment{StudentID=4,CourseID=1050,},
+            new Enrollment{StudentID=4,CourseID=4022,Grade=Grade.F},
+            new Enrollment{StudentID=5,CourseID=4041,Grade=Grade.C},
+            new Enrollment{StudentID=6,CourseID=1045},
+            new Enrollment{StudentID=7,CourseID=3141,Grade=Grade.A},
+            };
+            enrollments.ForEach(s => context.Enrollments.Add(s));
+            context.SaveChanges();
+        }
+    }
+}
+
+###### Controlador de exibição ###############
+
+<table>
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.LastName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstMidName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.EnrollmentDate)
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.LastName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FirstMidName)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.EnrollmentDate)
+        </td>
+        <td>
+            @Html.ActionLink("Edit", "Edit", new { id=item.ID }) |
+            @Html.ActionLink("Details", "Details", new { id=item.ID }) |
+            @Html.ActionLink("Delete", "Delete", new { id=item.ID })
+        </td>
+    </tr>
+}
